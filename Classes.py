@@ -103,7 +103,7 @@ class People:
       self.Quarentine = False
 
     elif Quarentine == True:
-      self.Set_P0(np.array([100,100]))            # Still need to think where quarentine will ocour
+      self.Set_P0(np.array([100,100]))            # Still need to think where quarentine will ocour.
     
 
 
