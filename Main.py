@@ -59,18 +59,18 @@ def animate (i,frames):
 
 
   for i in students:
-    Student.Set_Goal(i,time)
+    People.Set_Goal(i,time)
     if not i.Goal == "":
       if (i.Position[0]-inst_dict[i.Goal].location[0])**2 + (i.Position[1]-inst_dict[i.Goal].location[1])**2 <= inst_dict[i.Goal].area / (2*np.pi):
         i.Velocity = random_walk(2) 
       else:
         v0 = (inst_dict[i.Goal].location - i.Position)/(np.linalg.norm((inst_dict[i.Goal].location - i.Position))) * 2  
-        Student.Set_V0(i, v0 + random_walk(4))
+        People.Set_V0(i, v0 + random_walk(4))
     else:
-      Student.Set_V0(i, random_walk(4))
+      People.Set_V0(i, random_walk(4))
       
 
-    Student.att_posi(i)
+    People.Att_Posi(i)
     ax.scatter(i.Position[0],i.Position[1], color = "Red",marker = "o")
   ax.set_title( str(time[0]) + " - " + str(time[1])+ "hrs" )
 
