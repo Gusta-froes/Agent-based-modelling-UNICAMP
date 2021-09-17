@@ -8,10 +8,10 @@ def Generate_Schedule(inst):
   # Create a schedule based on the institute that you specified 
   # Note that the inst_list needs to have the institutes listed in the same order as the institutes in the p_list
 
-
   inst_list = ["IFGW","IC", "IMECC"]
-  if inst == "IFGW":                                        # These are the probabilities of somoene who is in IFGW taking a class in each istitute
-    p_IFGW = 0.7                                            # For now, these are done manualy. We may need to find another way of doing it 
+
+  if inst == "IFGW":                     # These are the probabilities of somoene who is in IFGW taking a class in each istitute
+    p_IFGW = 0.7                          # For now, these are done manualy. We may need to find another way of doing it 
     p_IC = 0.1                                               
     p_IMECC = 0.2
     
@@ -31,7 +31,7 @@ def Generate_Schedule(inst):
   
   for i in range(5):
     schedule[d[i]] = {}
-    t = [8,9,10,11,14,15,16,17,18,19,20]                      # Times in wich you may have classes
+    t = [8,9,10,11,14,15,16,17,18,19,20]                      #  Times in wich you may have classes 
     for j in range(6):                                        # In the future I might change this to take in consideration the distribution of classes in a certain time, in order to be more realistic
        h = random.randint(0,len(t)-1)
        p = random.randint(1,100)/100
@@ -45,7 +45,7 @@ def Generate_Schedule(inst):
   return schedule
 
 
-def Create_Population(n,inst_distrib, vaci_prob, infect_prob, symp_prob, imune_prob):
+def Create_Population(n,inst_distrib, vaci_prob, infect_prob, symp_prob, imune_prob, bus_prob):
   # Creates a population for the University 
   # n is the number of people you want to create
   # inst_distrib is the percentage of people in each institute: Needs to be a dictionary e.g.: {"IC": 0.25, "IFGW": 0.25, "IMECC": 0.5} 
@@ -53,6 +53,8 @@ def Create_Population(n,inst_distrib, vaci_prob, infect_prob, symp_prob, imune_p
   # infect_prob is the probaility of someone beeing infected in the beginning of the simulation
   # symp_prob is the probability of someone infected showing symptoms 
   # imune _prob is the probability of someone beeing imune in the beginning of the simulation 
+
+  #adicionei prob de estar no onibus ?
 
 
   pop = []
@@ -102,16 +104,19 @@ def Create_Population(n,inst_distrib, vaci_prob, infect_prob, symp_prob, imune_p
 
 
     schedule = Generate_Schedule(inst)
-    pop.append(Student(inst,infect,np.array([0,0]),vaci,np.array([0,0]),False, schedule , imune,np.array([0,0]),["Mon",8]))
+    pop.append(Student(inst,infect,np.array([0,0]),vaci,np.array([0,0]),False, schedule , imune,np.array([0,0]),["Mon",8], False))
 
   return pop
 
 def Generate_University(Institute_list,fig,ax):
   for i in Institute_list:
     r = np.sqrt(i.area/np.pi)
-    area = plt.Circle(i.location,r,fc = "lightblue", zorder = 0)
+    area = plt.Circle(i.location,r,fc = "lightblue", zorder = 0)      
     ax.scatter(i.location[0],i.location[1], color = "blue",zorder = 10)
     ax.add_patch(area)
+  area_bus = plt.Rectangle((-10,10), 7, 5, fill=False, edgecolor = 'black') 
+  ax.add_patch(area_bus) #gerar retangulo que é o busao
+
 
 def random_walk (V):
   theta  = np.random.choice(360)*np.pi/180

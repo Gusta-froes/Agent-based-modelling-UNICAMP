@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 import matplotlib.animation as animation
+from IPython.display import HTML
 
 class Institute:
   def __init__ (self,location, area, name):
@@ -9,14 +10,16 @@ class Institute:
     self.name = name
     self.area = area
 
+
 class Student:
   global dt
 
   dt = 0.1
-  def __init__ (self,Inst, Infect, Position, Vaci, Velocity, Quaren, Schedule,Imune, V0,Time):
+  def __init__ (self,Inst, Infect, Position, Vaci, Velocity, Quaren, Schedule,Imune, V0,Time, Bus):
     self.Inst = Inst
     self.Infect = Infect
     self.Position = Position
+    self.Bus = Bus
     self.Vaci = Vaci
     self.Velocity = Velocity
     self.Quaren = Quaren
@@ -26,11 +29,8 @@ class Student:
     self.Time = Time
     self.Goal = Schedule[Time[0]][Time[1]]
 
-
-
   def Set_Goal(self,time):
     self.Goal = self.Schedule[time[0]][time[1]]
-
 
   def Set_P0(self, PosiInicial):
     self.Position = PosiInitial
@@ -43,3 +43,6 @@ class Student:
   
   def att_velo(self):
     self.Velocity = self.Velocity +a*dt
+
+  def Bus_status(self):
+    self.Bus = False 
