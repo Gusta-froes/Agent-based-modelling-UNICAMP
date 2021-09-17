@@ -14,7 +14,7 @@ class People:
   dt = 0.1
   p_test_symp = 0.7
   p_test_asymp = 0.1
-  
+
   def __init__ (self,Inst, Infect, Position, Vaci, Velocity, Quaren, Schedule,Imune, V0,Time, Age, Incub_period, Death_period, Recov_period, Infectivity):
     self.Inst = Inst
     self.Infect = Infect
@@ -36,7 +36,7 @@ class People:
     self.Infectivity = Infectivity
     self.Is_Going_2_Die = False
     self.timer = [8,"Mon",0]
-    
+
 
 
 
@@ -46,15 +46,15 @@ class People:
 
   def Set_P0(self, PosiInicial):
     self.Position = PosiInitial
-  
+
   def Set_V0(self, v0):
     self.Velocity = v0
 
   def Att_Posi(self):
     self.Position = self.Position + self.Velocity*dt
 
-  def Att_Time (self, time):
-    self.time = time
+  def Att_Time (self, Time):
+    self.Time = Time
     self.Set_Goal()
 
   def Att_State (self, *args):
@@ -68,24 +68,25 @@ class People:
           self.Infect = -2
           self.color =  "Black"
 
-        elif (self.Time[2] - self.timer[2]) >= self.Incub_period:
+        elif (self.Time[2] - self.timer[2]) >= self.Incub_period and self.Infect == 1:
 
           if np.random.uniform(0,1) <= self.Porb_Die:
             self.Is_Going_2_Die = True
-    
+
           if np.random.uniform(0,1) <= asym:
             self.Infect = 3
             self.color =  "Blue"
-            
+
           else:
             self.Infect = 2
             self.color =  "Red"
             self.Infectivity = np.random.gamma(1.3, 0.2)
             while self.Infectivity > 1:
                   self.Infectivity = np.random.gamma(1.3, 0.2)
-          self.timer = self.Time  
-          
-        elif (self.Time[2] - self.timer[2]) >= self.Recov_period:
+
+          self.timer = self.Time
+
+         elif (self.Time[2] - self.timer[2]) >= self.Recov_period and self.Infect >= 2:
           self.Infect = -1
           self.color = "Grey"
           self.Is_Going_2_Die = False
@@ -99,27 +100,8 @@ class People:
           self.Quarentine = True
 
   def Att_Quarentine(self):
-    if self.Infect < 0:
+    if self.Infect <= 1:
       self.Quarentine = False
 
-    elif Quarentine == True:
+    elif self.Quarentine == True:
       self.Set_P0(np.array([100,100]))            # Still need to think where quarentine will ocour.
-    
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
