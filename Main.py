@@ -17,14 +17,23 @@ for i in inst_distrib:
 for i in inst_distrib:
   inst_distrib[i] = inst_distrib[i]/buff
 
-
-students = Create_Population(1,inst_distrib,10/100,10/100,10/100,10/100)
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
 
-IFGW = Institute(np.array([10,10]), 100, "IFGW")
-IMECC = Institute(np.array([10,-10]), 100, "IMECC")
-IC = Institute(np.array([-10,-10]), 100, "IC")
+IFGW = Institute(np.array([10,10]), 150, "IFGW", 'blue', week)
+IMECC = Institute(np.array([10,-10]), 150, "IMECC", 'blue', week)
+IC = Institute(np.array([-10,-10]), 150, "IC", 'blue', week)
+CB01 = Classroom(np.array([20,20]), 50, 'CB01', 'gray', week)
+CB02 = Classroom(np.array([20,20]), 50, 'CB02', 'gray', week)
+CB03 = Classroom(np.array([20,20]), 50, 'CB03', 'gray', week)
+Bandeco = Restaurant(np.array([-15,15]), 100, 'Bandeco', 'pink')
+Unicamp = University(np.array([0,0]), 1000)
+unicamp_dict = {'institute':{"IFGW":IFGW,"IC":IC, "IMECC": IMECC}, 'classroom':{'CB01': CB01, 'CB02': CB02, 'CB03':CB03}}
+
+students = Create_Population(1,inst_distrib,10/100,10/100,10/100,10/100)
+
+
+
 inst_dict = {"IFGW":IFGW,"IC":IC, "IMECC": IMECC}
 inst_list = [IFGW,IC,IMECC]
 

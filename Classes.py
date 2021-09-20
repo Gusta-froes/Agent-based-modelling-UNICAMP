@@ -3,11 +3,30 @@ import matplotlib.pyplot as plt
 import random
 import matplotlib.animation as animation
 
-class Institute:
-  def __init__ (self,location, area, name):
+class University:
+  def __init__ (self,location, area):
     self.location = location
-    self.name = name
     self.area = area
+
+class Institute(University):
+  def __init__(self, location, area, name, color):
+      super().__init__(location, area)
+      self.name = name
+      self.color = color
+      self.free_date = {"Mon":[8,10,14,16,19,21], "Tue":[8,10,14,16,19,21], "Wed":[8,10,14,16,19,21],"Thu":[8,10,14,16,19,21],"Fri":[8,10,14,16,19,21]}
+
+class Classroom(University):
+  def __init__(self, location, area, name, color):
+      super().__init__(location, area)
+      self.name = name
+      self.color = color
+      self.free_date = {"Mon":[8,10,14,16,19,21], "Tue":[8,10,14,16,19,21], "Wed":[8,10,14,16,19,21],"Thu":[8,10,14,16,19,21],"Fri":[8,10,14,16,19,21]}
+
+class Restaurant(University):
+  def __init__(self, location, area, name, color):
+      super().__init__(location, area)
+      self.name = name
+      self.color = color
 
 class Student:
   global dt

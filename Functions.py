@@ -3,7 +3,33 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 import matplotlib.animation as animation
+def create_classes(num_class, unicamp_dict):
+  classes = {}
 
+  for i in num_class:
+    classes[i] = []
+    for j in range(num_class[i]):
+      aux == 0
+      options = list(unicamp_dict['classroom'].keys()) + [i]
+      while aux != 0 and len(options) != 0:
+        place = np.random.choice(options)
+        if place in unicamp_dict['classroom']:
+          type_place = 'classroom'
+        else:
+          type_place = 'institute'
+        if len(list(unicamp_dict[type_place][place].free_date.keys())) != 0:
+          aux == 1
+          day = np.random.choice(list(unicamp_dict[type_place][place].free_date.keys()))
+          hour = np.random.choice(unicamp_dict[type_place][place].free_date[day])
+          unicamp_dict[type_place][place].free_date[day].remove(hour)
+          if len(unicamp_dict[type_place][place].free_date[day]) == 0:
+            del unicamp_dict[type_place][place].free_date[day]
+        else:
+          options.remove(place)
+      classes[i].append([day, hour, place])
+  return classes
+
+  
 def Generate_Schedule(inst):
   # Create a schedule based on the institute that you specified 
   # Note that the inst_list needs to have the institutes listed in the same order as the institutes in the p_list
