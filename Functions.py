@@ -55,60 +55,60 @@ def Create_Population(n,inst_distrib, vaci_prob, infect_prob, symp_prob, imune_p
   # imune _prob is the probability of someone beeing imune in the beginning of the simulation
 
 
-  pop = []
-  inst_list = list(inst_distrib.keys())
-  inst_p = []
-  n_inst = len(inst_list)
-  buff = 0
-  vac_efi = 97/100
+    pop = []
+    inst_list = list(inst_distrib.keys())
+    inst_p = []
+    n_inst = len(inst_list)
+    buff = 0
+    vac_efi = 97/100
 
-  for i in inst_list:
-    buff += inst_distrib[i]
-    inst_p.append(buff)
+    for i in inst_list:
+        buff += inst_distrib[i]
+        inst_p.append(buff)
 
 
-  for i in range(n):
-    p_inst = random.randint(1,100)/100
-    p_infect = random.randint(1,100)/100
-    p_vaci =  random.randint(1,100)/100
-    p_vaci_efi = random.randint(1,100)/100
-    p_symp =  random.randint(1,100)/100
-    p_imune =  random.randint(1,100)/100
+    for i in range(n):
+        p_inst = random.randint(1,100)/100
+        p_infect = random.randint(1,100)/100
+        p_vaci =  random.randint(1,100)/100
+        p_vaci_efi = random.randint(1,100)/100
+        p_symp =  random.randint(1,100)/100
+        p_imune =  random.randint(1,100)/100
 
-    index = 0
-    for j in inst_p:
-      if p_inst <= inst_p[index]:
-        inst = inst_list[index]
         index = 0
-        break
-      index += 1
+        for j in inst_p:
+            if p_inst <= inst_p[index]:
+                inst = inst_list[index]
+                index = 0
+                break
+            index += 1
 
-    imune = False
-    if p_imune <= imune_prob:
-      imune = True
+        imune = False
+        if p_imune <= imune_prob:
+            imune = True
 
-    vaci = False
-    if p_vaci <= vaci_prob and imune == False:
-      vaci = True
-      if p_vaci_efi <= vac_efi:
-        imune = True
+        vaci = False
+        if p_vaci <= vaci_prob and imune == False:
+            vaci = True
+        if p_vaci_efi <= vac_efi:
+            imune = True
 
-    infect = 0
-    if p_infect <= infect_prob and imune == False:
-      if p_symp <= symp_prob:
-        infect = 2
-      else:
-        infect = 3                  # Infected and symptomatic: infect = 2, Infected and Assymptomatic: infect = 3, Exposed: infect = 1, Susceptible: infect = 0, Recovered: infect = -1, Dead: infect = -2
+        infect = 0
+        if p_infect <= infect_prob and imune == False:
+            if p_symp <= symp_prob:
+                infect = 2
+            else:
+                infect = 3                  # Infected and symptomatic: infect = 2, Infected and Assymptomatic: infect = 3, Exposed: infect = 1, Susceptible: infect = 0, Recovered: infect = -1, Dead: infect = -2
 
 
-    Incub_period = np.round(np.random.lognormal(1.5, 0.6, n)/(8/24))
-    Death_period = np.round(np.random.lognormal(2.84, 0.58, n)/(8/24))       #8/24 is the dt in Pedro's code, don't know what it is going to be in this simulation, so I (Gustavo) left it unchanged.
-    Recov_period = np.round(np.random.gamma(2.2, 6.36, n)/(8/24))
+        incub_period = np.round(np.random.lognormal(1.5, 0.6, n)/(8/24))
+        death_period = np.round(np.random.lognormal(2.84, 0.58, n)/(8/24))       #8/24 is the dt in Pedro's code, don't know what it is going to be in this simulation, so I (Gustavo) left it unchanged.
+        recov_period = np.round(np.random.gamma(2.2, 6.36, n)/(8/24))
 
-    schedule = Generate_Schedule(inst)
-    pop.append(People(inst,infect,np.array([0,0]),vaci,np.array([0,0]),False, schedule , imune,np.array([0,0]),["Mon",8,1]),0,Incub_period ,Death_period,Recov_period)
+        schedule = Generate_Schedule(inst)
+        pop.append(People(inst,infect,np.array([0,0]),vaci,np.array([0,0]),False, schedule , imune,["Mon",8,1],0,incub_period,death_period,recov_period,Infectivity = 0))
 
-  return pop
+    return pop
 
 def Generate_University(Institute_list,fig,ax) -> None:
   for i in Institute_list:

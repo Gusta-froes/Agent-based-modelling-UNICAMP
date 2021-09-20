@@ -18,7 +18,7 @@ for i in inst_distrib:
   inst_distrib[i] = inst_distrib[i]/buff
 
 
-students = Create_Population(1,inst_distrib,10/100,10/100,10/100,10/100)
+Peoples = Create_Population(1,inst_distrib,10/100,10/100,10/100,10/100)
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
 
@@ -28,7 +28,7 @@ IC = Institute(np.array([-10,-10]), 100, "IC")
 inst_dict = {"IFGW":IFGW,"IC":IC, "IMECC": IMECC}
 inst_list = [IFGW,IC,IMECC]
 
-frames =1040
+frames =1040*3
 d = 0
 day ='Mon'
 h = 0
@@ -50,7 +50,7 @@ def animate (i,frames):
     day = day_dict[d%5]
     hour = hour_dict[h]
 
-  
+
   if  i > d_time*(d) + h_time*(h+1):
     h += 1
     hour = hour_dict[h]
@@ -58,21 +58,21 @@ def animate (i,frames):
   time = [day,hour]
 
 
-  for i in students:
-    Student.Set_Goal(i,time)
+  for i in Peoples:
+    i.Att_Time(time)
     if not i.Goal == "":
       if (i.Position[0]-inst_dict[i.Goal].location[0])**2 + (i.Position[1]-inst_dict[i.Goal].location[1])**2 <= inst_dict[i.Goal].area / (2*np.pi):
-        i.Velocity = random_walk(2) 
+        i.Velocity = random_walk(2)
       else:
-        v0 = (inst_dict[i.Goal].location - i.Position)/(np.linalg.norm((inst_dict[i.Goal].location - i.Position))) * 2  
-        Student.Set_V0(i, v0 + random_walk(4))
+        v0 = (inst_dict[i.Goal].location - i.Position)/(np.linalg.norm((inst_dict[i.Goal].location - i.Position))) * 2
+        i.Velocity =  v0 + random_walk(4)
     else:
-      Student.Set_V0(i, random_walk(4))
-      
+      i.Velocity =  random_walk(4)
 
-    Student.att_posi(i)
+
+    People.Att_Posi(i)
     ax.scatter(i.Position[0],i.Position[1], color = "Red",marker = "o")
-  ax.set_title( str(time[0]) + " - " + str(time[1])+ "hrs" )
+  ax.set_title( str(time[0]) + " - " + str(time[1])+ "hrs" +str(Peoples[0].Goal))
 
 
 

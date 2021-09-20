@@ -11,11 +11,12 @@ class Institute:
 
 class People:
   asym = 0.3
+  global dt
   dt = 0.1
   p_test_symp = 0.7
   p_test_asymp = 0.1
 
-  def __init__ (self,Inst, Infect, Position, Vaci, Velocity, Quaren, Schedule,Imune, V0,Time, Age, Incub_period, Death_period, Recov_period, Infectivity):
+  def __init__ (self,Inst, Infect, Position, Vaci, Velocity, Quaren, Schedule,Imune,Time, Age, Incub_period, Death_period, Recov_period, Infectivity):
     self.Inst = Inst
     self.Infect = Infect
     self.Position = Position
@@ -24,7 +25,6 @@ class People:
     self.Quaren = Quaren
     self.Schedule = Schedule
     self.Imune = Imune
-    self.V0 = V0
     self.Time = Time
     self.Goal = Schedule[Time[0]][Time[1]]
     self.Age = Age
@@ -35,20 +35,14 @@ class People:
     self.Recov_period = Recov_period
     self.Infectivity = Infectivity
     self.Is_Going_2_Die = False
-    self.timer = [8,"Mon",0]
+    self.timer = ["Mon",8,0]
 
 
 
 
   def Set_Goal(self):
-    self.Goal = self.Schedule[self.time[0]][self.time[1]]
+    self.Goal = self.Schedule[self.Time[0]][self.Time[1]]
 
-
-  def Set_P0(self, PosiInicial):
-    self.Position = PosiInitial
-
-  def Set_V0(self, v0):
-    self.Velocity = v0
 
   def Att_Posi(self):
     self.Position = self.Position + self.Velocity*dt
@@ -86,7 +80,7 @@ class People:
 
           self.timer = self.Time
 
-         elif (self.Time[2] - self.timer[2]) >= self.Recov_period and self.Infect >= 2:
+        elif (self.Time[2] - self.timer[2]) >= self.Recov_period and self.Infect >= 2:
           self.Infect = -1
           self.color = "Grey"
           self.Is_Going_2_Die = False
