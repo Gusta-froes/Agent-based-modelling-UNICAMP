@@ -20,13 +20,13 @@ for i in inst_distrib:
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
 
-IFGW = Institute(np.array([10,10]), 150, "IFGW", 'blue')
-IMECC = Institute(np.array([10,-10]), 150, "IMECC", 'blue')
-IC = Institute(np.array([-10,-10]), 150, "IC", 'blue')
-CB01 = Classroom(np.array([20,20]), 50, 'CB01', 'gray')
-CB02 = Classroom(np.array([20,20]), 50, 'CB02', 'gray')
-CB03 = Classroom(np.array([20,20]), 50, 'CB03', 'gray')
-Bandeco = Restaurant(np.array([-15,15]), 100, 'Bandeco', 'pink')
+IFGW = Institute(np.array([30,30]), 150, "IFGW", 'blue')
+IMECC = Institute(np.array([30,-30]), 150, "IMECC", 'blue')
+IC = Institute(np.array([-30,-30]), 150, "IC", 'blue')
+CB01 = Classroom(np.array([10,10]), 50, 'CB01', 'gray')
+CB02 = Classroom(np.array([10,-10]), 50, 'CB02', 'gray')
+CB03 = Classroom(np.array([-10,10]), 50, 'CB03', 'gray')
+Bandeco = Restaurant(np.array([-45,45]), 300, 'Bandeco', 'pink')
 Unicamp = University(np.array([0,0]), 1000)
 unicamp_dict = {'institute':{"IFGW":IFGW,"IC":IC, "IMECC": IMECC}, 'classroom':{'CB01': CB01, 'CB02': CB02, 'CB03':CB03}}
 num_class = {'IFGW': 6, 'IMECC': 6, 'IC': 6}
@@ -47,7 +47,7 @@ h = 0
 hour =7
 hour_dict = {0:7,1:8,2:9,3:10,4:11,5:12,6:13,7:14,8:15,9:16,10:17,11:18,12:19,13:20,14:21,15:22,16:23}
 day_dict = {0:"Mon",1:"Tue",2:"Wed",3:"Thu",4:"Fri"}
-
+print(people[0].Schedule)
 def animate (p,frames):
   global d,h,day,day_dict,hour_dict,hour
   ax.clear()
@@ -72,9 +72,9 @@ def animate (p,frames):
   run_clas = int(h_time/3)
   
   time = [day,hour]
-
   for i in people:
     i.Att_Time(time)
+    
     if not i.Goal == "":
 
       if (i.Position[0]-inst_dict[i.Goal].location[0])**2 + (i.Position[1]-inst_dict[i.Goal].location[1])**2 <= inst_dict[i.Goal].area / (2*np.pi):

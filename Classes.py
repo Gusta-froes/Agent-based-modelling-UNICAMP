@@ -163,6 +163,7 @@ class Student(People):
         self.Schedule[i][13] = 'Bandeco'
         self.Schedule[i][12] = ''
       self.Schedule[i][18] = 'Bandeco'
+    student_classes = []
     for j in range(12):                                             # In the future I might change this to take in consideration the distribution of classes in a certain time, in order to be more realistic
       p = random.randint(1,100)/100
 
@@ -172,7 +173,8 @@ class Student(People):
       
       self.Schedule[day][hour] = place
       self.Schedule[day][hour + 1] = place
-    return day, hour, place, inst_class
+      student_classes.append([day, hour, place, inst_class])
+    return student_classes
 
 class Professor(People):
   def __init__(self, Inst, Infect, Position, Vaci, Velocity, Quaren, Imune, V0, Time, Age, Incub_period, Death_period, Recov_period, Infectivity):
@@ -184,20 +186,20 @@ class Professor(People):
       for i in d:
         self.Schedule[i] = {}                      # Times in wich you may have classes
         for j in t:
-          self.Schedule[i][j] = ''
+          self.Schedule[i][j] = Inst
         if random.randint(1,2) == 1:
           self.Schedule[i][12] = 'Bandeco'
-          self.Schedule[i][13] = ''
+          self.Schedule[i][13] = Inst
         else:
           self.Schedule[i][13] = 'Bandeco'
-          self.Schedule[i][12] = ''
+          self.Schedule[i][12] = Inst
         self.Schedule[i][18] = 'Bandeco'
       self.cont = 0
 
-      def Add_class(self, day, hour, place):
-        self.cont = self.cont + 1
-        self.Schedule[day][hour] = place
-        self.Schedule[day][hour + 1] = place
+  def Add_class(self, day, hour, place):
+    self.cont = self.cont + 1
+    self.Schedule[day][hour] = place
+    self.Schedule[day][hour + 1] = place
 class Worker(People):
   def __init__(self, Inst, Infect, Position, Vaci, Velocity, Quaren, Schedule, Imune, V0, Time, Age, Incub_period, Death_period, Recov_period, Infectivity):
       super().__init__(Inst, Infect, Position, Vaci, Velocity, Quaren, Schedule, Imune, V0, Time, Age, Incub_period, Death_period, Recov_period, Infectivity)

@@ -13,12 +13,14 @@ def create_classes(num_class, unicamp_dict):
       hour = -1
       aux = 0
       options = list(unicamp_dict['classroom'].keys()) + [i]
-      while aux != 0 and len(options) != 0:
+      print(options)
+      while aux == 0 and len(options) != 0:
         place = np.random.choice(options)
         if place in unicamp_dict['classroom']:
           type_place = 'classroom'
         else:
           type_place = 'institute'
+        print(len(list(unicamp_dict[type_place][place].free_date.keys())))
         if len(list(unicamp_dict[type_place][place].free_date.keys())) != 0:
           aux == 1
           day = np.random.choice(list(unicamp_dict[type_place][place].free_date.keys()))
@@ -30,48 +32,8 @@ def create_classes(num_class, unicamp_dict):
           options.remove(place)
       if day != -1:
         classes[i].append([day, hour, place])
+  print(classes)
   return classes
-
-
-def Generate_Schedule(inst):
-  # Create a schedule based on the institute that you specified 
-  # Note that the inst_list needs to have the institutes listed in the same order as the institutes in the p_list
-
-
-  inst_list = ["IFGW","IC", "IMECC"]
-  if inst == "IFGW":                                        # These are the probabilities of somoene who is in IFGW taking a class in each istitute
-    p_IFGW = 0.7                                            # For now, these are done manualy. We may need to find another way of doing it 
-    p_IC = 0.1                                               
-    p_IMECC = 0.2
-    
-  if inst == "IMECC":
-    p_IFGW = 0.05
-    p_IC = 0.25
-    p_IMECC = 0.7
-
-  if inst == "IC":
-    p_IFGW = 0
-    p_IC = 0.8
-    p_IMECC = 0.2
-
-  p_list =  [p_IFGW,p_IC,p_IMECC]
-  d = ["Mon", "Tue", "Wed","Thu","Fri"]
-  schedule = {}
-  
-  for i in range(5):
-    schedule[d[i]] = {}
-    t = [8,9,10,11,14,15,16,17,18,19,20]                      # Times in wich you may have classes
-    for j in range(6):                                        # In the future I might change this to take in consideration the distribution of classes in a certain time, in order to be more realistic
-       h = random.randint(0,len(t)-1)
-       p = random.randint(1,100)/100
-       schedule[d[i]][t[h]] = np.random.choice(inst_list,p =p_list)
-       t.remove(t[h])
-    for j in range(0,len(t)):
-      schedule[d[i]][t[j]] = ""
-    schedule[d[i]][12] = ""
-    schedule[d[i]][13] = ""
-    
-  return schedule
 
 
 def Create_Population(n, class_offered, inst_distrib, vaci_prob, infect_prob, symp_prob, imune_prob):
@@ -88,7 +50,6 @@ def Create_Population(n, class_offered, inst_distrib, vaci_prob, infect_prob, sy
   professor = []
   inst_list = list(inst_distrib.keys())
   inst_p = []
-  n_inst = len(inst_list)
   buff = 0
   vac_efi = 97/100
 
@@ -132,18 +93,23 @@ def Create_Population(n, class_offered, inst_distrib, vaci_prob, infect_prob, sy
 
 
     student = Student(inst,infect,np.array([0,0]),vaci,np.array([0,0]),False, imune,np.array([0,0]),["Mon",7], 20, 1,1,1,1)
-    day, hour, place, inst_class = student.schedule(inst, class_offered)
+    student_classes = student.schedule(inst, class_offered)
     pop.append(student)
-    for b in professor:
-      aux = 0
-      if b.Schedule[day][hour] == '' and b.cont <=4 and b.Inst == inst_class and aux == 0:
-        b.Add_class(day, hour, place)
-        aux = 1
-    if aux == 0:
-      b = Professor(inst_class, 0, np.array([0,0]), False, np.array([0,0]), False, False, np.array([0,0]), ["Mon",7], 40, 1,1,1,1)
-      b.Add_class(day, hour, place)
-      professor.append(b)
-      pop.append(b)
+    aux = 0
+    for s in student_classes:
+      day = s[0]
+      hour = s[1]
+      place = s[2]
+      inst_class = s[3]
+      for b in professor:
+        if b.Schedule[day][hour] == '' and b.cont <=4 and b.Inst == inst_class and aux == 0:
+          b.Add_class(day, hour, place)
+          aux = 1
+      if aux == 0:
+        Tessler = Professor(inst_class, 0, np.array([0,0]), False, np.array([0,0]), False, False, np.array([0,0]), ["Mon",7], 40, 1,1,1,1)
+        Tessler.Add_class(day, hour, place)
+        professor.append(Tessler)
+        pop.append(Tessler)
 
   return pop
 
