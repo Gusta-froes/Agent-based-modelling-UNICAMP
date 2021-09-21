@@ -9,7 +9,9 @@ def create_classes(num_class, unicamp_dict):
   for i in num_class:
     classes[i] = []
     for j in range(num_class[i]):
-      aux == 0
+      day = -1
+      hour = -1
+      aux = 0
       options = list(unicamp_dict['classroom'].keys()) + [i]
       while aux != 0 and len(options) != 0:
         place = np.random.choice(options)
@@ -26,10 +28,11 @@ def create_classes(num_class, unicamp_dict):
             del unicamp_dict[type_place][place].free_date[day]
         else:
           options.remove(place)
-      classes[i].append([day, hour, place])
+      if day != -1:
+        classes[i].append([day, hour, place])
   return classes
 
-  
+
 def Generate_Schedule(inst):
   # Create a schedule based on the institute that you specified 
   # Note that the inst_list needs to have the institutes listed in the same order as the institutes in the p_list
@@ -71,7 +74,7 @@ def Generate_Schedule(inst):
   return schedule
 
 
-def Create_Population(n,inst_distrib, vaci_prob, infect_prob, symp_prob, imune_prob):
+def Create_Population(n, class_offered, inst_distrib, vaci_prob, infect_prob, symp_prob, imune_prob):
   # Creates a population for the University 
   # n is the number of people you want to create
   # inst_distrib is the percentage of people in each institute: Needs to be a dictionary e.g.: {"IC": 0.25, "IFGW": 0.25, "IMECC": 0.5} 
@@ -82,6 +85,7 @@ def Create_Population(n,inst_distrib, vaci_prob, infect_prob, symp_prob, imune_p
 
 
   pop = []
+  professor = []
   inst_list = list(inst_distrib.keys())
   inst_p = []
   n_inst = len(inst_list)
@@ -127,8 +131,19 @@ def Create_Population(n,inst_distrib, vaci_prob, infect_prob, symp_prob, imune_p
         infect = 1                  # Infected and symptomatic: infect = 2, Infected and Assymptomatic: infect = 1, Not infected = 0
 
 
-    schedule = Generate_Schedule(inst)
-    pop.append(Student(inst,infect,np.array([0,0]),vaci,np.array([0,0]),False, schedule , imune,np.array([0,0]),["Mon",8]))
+    student = Student(inst,infect,np.array([0,0]),vaci,np.array([0,0]),False, imune,np.array([0,0]),["Mon",7], 20, 1,1,1,1)
+    day, hour, place, inst_class = student.schedule(inst, class_offered)
+    pop.append(student)
+    for b in professor:
+      aux = 0
+      if b.Schedule[day][hour] == '' and b.cont <=4 and b.Inst == inst_class and aux == 0:
+        b.Add_class(day, hour, place)
+        aux = 1
+    if aux == 0:
+      b = Professor(inst_class, 0, np.array([0,0]), False, np.array([0,0]), False, False, np.array([0,0]), ["Mon",7], 40, 1,1,1,1)
+      b.Add_class(day, hour, place)
+      professor.append(b)
+      pop.append(b)
 
   return pop
 
@@ -139,7 +154,7 @@ def Generate_University(Institute_list,fig,ax):
     ax.scatter(i.location[0],i.location[1], color = "blue",zorder = 10)
     ax.add_patch(area)
 
-def random_walk (V):
+def random_walk(V):
   theta  = np.random.choice(360)*np.pi/180
   v = np.array([1,1])/(np.linalg.norm([1,1])) * V             #V = "Size" of the velocity vector 
   M = np.array([[np.cos(theta), -np.sin(theta)],[np.sin(theta),np.cos(theta)]])
