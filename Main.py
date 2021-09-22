@@ -33,7 +33,7 @@ num_class = {'IFGW': 12, 'IMECC': 12, 'IC': 12}
 
 class_offered = create_classes(num_class, unicamp_dict)
 
-people = Create_Population(1, class_offered ,inst_distrib,10/100,10/100,10/100,10/100)
+people = Create_Population(10, class_offered ,inst_distrib,10/100,10/100,10/100,10/100)
 
 
 
