@@ -29,7 +29,7 @@ CB03 = Classroom(np.array([-10,10]), 50, 'CB03', 'gray')
 Bandeco = Restaurant(np.array([-45,45]), 300, 'Bandeco', 'pink')
 Unicamp = University(np.array([0,0]), 1000)
 unicamp_dict = {'institute':{"IFGW":IFGW,"IC":IC, "IMECC": IMECC}, 'classroom':{'CB01': CB01, 'CB02': CB02, 'CB03':CB03}}
-num_class = {'IFGW': 6, 'IMECC': 6, 'IC': 6}
+num_class = {'IFGW': 12, 'IMECC': 12, 'IC': 12}
 
 class_offered = create_classes(num_class, unicamp_dict)
 
@@ -40,7 +40,7 @@ people = Create_Population(1, class_offered ,inst_distrib,10/100,10/100,10/100,1
 inst_dict = {"IFGW":IFGW,"IC":IC, "IMECC": IMECC, 'CB01': CB01, 'CB02': CB02, 'CB03':CB03, 'Bandeco': Bandeco}
 inst_list = [IFGW,IC,IMECC, CB01, CB02, CB03, Bandeco]
 
-frames =3000
+frames =1700
 d = 0
 day ='Mon'
 h = 0
@@ -69,35 +69,36 @@ def animate (p,frames):
   if h == 16:
     aux = 1
 
-  run_clas = int(h_time/3)
+  run_clas = int(h_time/3) - 1
   
   time = [day,hour]
   for i in people:
     i.Att_Time(time)
-    
     if not i.Goal == "":
 
       if (i.Position[0]-inst_dict[i.Goal].location[0])**2 + (i.Position[1]-inst_dict[i.Goal].location[1])**2 <= inst_dict[i.Goal].area / (2*np.pi):
         if p - int(h_time/4) < d_time*(d) + h_time*(h):
-          i.Velocity = random_walk(8)
+          i.Velocity = random_walk(16)
         else:
           i.Velocity = random_walk(1)
       else:
-        v0 = (inst_dict[i.Goal].location - i.Position)/(np.linalg.norm((inst_dict[i.Goal].location - i.Position))) * 4  
+        v0 = (inst_dict[i.Goal].location - i.Position)/(np.linalg.norm((inst_dict[i.Goal].location - i.Position))) * 16  
         i.Set_V0(v0 + random_walk(0.1))
 
     else:
       i.Set_V0( random_walk(8))
       for k in inst_list:
         if (i.Position[0]-k.location[0])**2 + (i.Position[1]-k.location[1])**2 <= k.area / (np.pi/2):
-           v0 = (k.location - i.Position)/(np.linalg.norm((k.location - i.Position))) * (-4)
+           v0 = (k.location - i.Position)/(np.linalg.norm((k.location - i.Position))) * (-16)
            i.Set_V0( v0 + random_walk(0.1))
     if aux == 0:
         if not i.Schedule[time[0]][time[1]+1] == '':
           if p + run_clas > d_time*(d) + h_time*(h+1):
-            v0 = (inst_dict[i.Schedule[time[0]][time[1]+1]].location - i.Position)/(0.1* (run_clas))
+            v0 = (inst_dict[i.Schedule[time[0]][time[1]+1]].location - i.Position)/(0.05* (run_clas))
             i.Set_V0( v0 + random_walk(0.1))
-      
+    else:
+      v0 = (Unicamp.location - i.Position)/(np.linalg.norm((Unicamp.location - i.Position))) * (-16)
+      i.Set_V0( v0 + random_walk(4))
 
     i.Att_Posi()
     ax.scatter(i.Position[0],i.Position[1], color = i.color ,marker = "o")
@@ -105,8 +106,8 @@ def animate (p,frames):
 
 
 
-ax.set_xlim(30)
-ax.set_ylim(30)
+#ax.set_xlim(30)
+#ax.set_ylim(30)
 
 anim = animation.FuncAnimation(fig, animate, interval = 100, fargs = [frames], save_count = frames )
 plt.show()

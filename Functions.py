@@ -9,30 +9,27 @@ def create_classes(num_class, unicamp_dict):
   for i in num_class:
     classes[i] = []
     for j in range(num_class[i]):
-      day = -1
-      hour = -1
+     # day = -1
+     # hour = -1
       aux = 0
       options = list(unicamp_dict['classroom'].keys()) + [i]
-      print(options)
       while aux == 0 and len(options) != 0:
         place = np.random.choice(options)
         if place in unicamp_dict['classroom']:
           type_place = 'classroom'
         else:
           type_place = 'institute'
-        print(len(list(unicamp_dict[type_place][place].free_date.keys())))
         if len(list(unicamp_dict[type_place][place].free_date.keys())) != 0:
-          aux == 1
+          aux = 1
           day = np.random.choice(list(unicamp_dict[type_place][place].free_date.keys()))
           hour = np.random.choice(unicamp_dict[type_place][place].free_date[day])
           unicamp_dict[type_place][place].free_date[day].remove(hour)
           if len(unicamp_dict[type_place][place].free_date[day]) == 0:
             del unicamp_dict[type_place][place].free_date[day]
+          classes[i].append([day, hour, place])  
         else:
           options.remove(place)
-      if day != -1:
-        classes[i].append([day, hour, place])
-  print(classes)
+
   return classes
 
 
@@ -95,8 +92,9 @@ def Create_Population(n, class_offered, inst_distrib, vaci_prob, infect_prob, sy
     student = Student(inst,infect,np.array([0,0]),vaci,np.array([0,0]),False, imune,np.array([0,0]),["Mon",7], 20, 1,1,1,1)
     student_classes = student.schedule(inst, class_offered)
     pop.append(student)
-    aux = 0
+    
     for s in student_classes:
+      aux = 0
       day = s[0]
       hour = s[1]
       place = s[2]
@@ -110,7 +108,8 @@ def Create_Population(n, class_offered, inst_distrib, vaci_prob, infect_prob, sy
         Tessler.Add_class(day, hour, place)
         professor.append(Tessler)
         pop.append(Tessler)
-
+    for s in professor:
+      s.Fill_schedule()
   return pop
 
 def Generate_University(Institute_list,fig,ax):

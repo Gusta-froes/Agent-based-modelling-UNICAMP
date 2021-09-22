@@ -128,10 +128,10 @@ class Student(People):
       self.color =  {0:"Green",1:"Red",2:"Blue"}[Infect]
       self.Schedule = {}
 
-  def schedule(self, inst, class_offered):
+  def schedule(self, inst, initial_class_offered):
   # Create a schedule based on the institute that you specified 
   # Note that the inst_list needs to have the institutes listed in the same order as the institutes in the p_list
-
+    class_offered = initial_class_offered
 
     inst_list = ["IFGW","IC", "IMECC"]
     if inst == "IFGW":                                        # These are the probabilities of somoene who is in IFGW taking a class in each istitute
@@ -165,15 +165,14 @@ class Student(People):
       self.Schedule[i][18] = 'Bandeco'
     student_classes = []
     for j in range(12):                                             # In the future I might change this to take in consideration the distribution of classes in a certain time, in order to be more realistic
-      p = random.randint(1,100)/100
-
       inst_class= np.random.choice(inst_list,p =p_list)
-      a = random.randint(0, len(class_offered[inst_class]) - 1)
-      day, hour, place = class_offered[inst_class][a]
-      
-      self.Schedule[day][hour] = place
-      self.Schedule[day][hour + 1] = place
-      student_classes.append([day, hour, place, inst_class])
+      if len(class_offered[inst_class]) != 0:
+        a = random.randint(0, len(class_offered[inst_class]) - 1)
+        day, hour, place = class_offered[inst_class][a]
+        class_offered[inst_class].pop(a)
+        self.Schedule[day][hour] = place
+        self.Schedule[day][hour + 1] = place
+        student_classes.append([day, hour, place, inst_class])
     return student_classes
 
 class Professor(People):
@@ -186,13 +185,13 @@ class Professor(People):
       for i in d:
         self.Schedule[i] = {}                      # Times in wich you may have classes
         for j in t:
-          self.Schedule[i][j] = Inst
+          self.Schedule[i][j] = ''
         if random.randint(1,2) == 1:
           self.Schedule[i][12] = 'Bandeco'
-          self.Schedule[i][13] = Inst
+          self.Schedule[i][13] = ''
         else:
           self.Schedule[i][13] = 'Bandeco'
-          self.Schedule[i][12] = Inst
+          self.Schedule[i][12] = ''
         self.Schedule[i][18] = 'Bandeco'
       self.cont = 0
 
@@ -200,6 +199,11 @@ class Professor(People):
     self.cont = self.cont + 1
     self.Schedule[day][hour] = place
     self.Schedule[day][hour + 1] = place
+  def Fill_schedule(self):
+    for i in list(self.Schedule.keys()):
+      for j in list(self.Schedule[i].keys()):
+        if self.Schedule[i][j] == '':
+          self.Schedule[i][j] = self.Inst
 class Worker(People):
   def __init__(self, Inst, Infect, Position, Vaci, Velocity, Quaren, Schedule, Imune, V0, Time, Age, Incub_period, Death_period, Recov_period, Infectivity):
       super().__init__(Inst, Infect, Position, Vaci, Velocity, Quaren, Schedule, Imune, V0, Time, Age, Incub_period, Death_period, Recov_period, Infectivity)
