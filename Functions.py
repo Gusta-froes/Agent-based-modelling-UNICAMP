@@ -60,7 +60,7 @@ def Create_Population(n,inst_distrib, vaci_prob, infect_prob, symp_prob, imune_p
     inst_p = []
     n_inst = len(inst_list)
     buff = 0
-    vac_efi = 97/100
+    vac_efi = 0
 
     for i in inst_list:
         buff += inst_distrib[i]
@@ -101,12 +101,17 @@ def Create_Population(n,inst_distrib, vaci_prob, infect_prob, symp_prob, imune_p
                 infect = 3                  # Infected and symptomatic: infect = 2, Infected and Assymptomatic: infect = 3, Exposed: infect = 1, Susceptible: infect = 0, Recovered: infect = -1, Dead: infect = -2
 
 
-        incub_period = np.round(np.random.lognormal(1.5, 0.6, n)/(8/24))
-        death_period = np.round(np.random.lognormal(2.84, 0.58, n)/(8/24))       #8/24 is the dt in Pedro's code, don't know what it is going to be in this simulation, so I (Gustavo) left it unchanged.
-        recov_period = np.round(np.random.gamma(2.2, 6.36, n)/(8/24))
+        incub_period = np.round(np.random.lognormal(1.5, 0.6, 1))[0]
+        death_period = np.round(np.random.lognormal(2.84, 0.58,1))[0]
+        recov_period = np.round(np.random.gamma(2.2, 6.36, 1))[0]
+        infectivity = np.random.gamma(1, 0.2, 1)[0]
+        while infectivity > 1:
+                            infectivity = np.random.gamma(1, 0.2, 1)[0]
 
         schedule = Generate_Schedule(inst)
-        pop.append(People(inst,infect,np.array([0,0]),vaci,np.array([0,0]),False, schedule , imune,["Mon",8,1],0,incub_period,death_period,recov_period,Infectivity = 0))
+        x = np.random.randint(-15,15)
+        y = np.random.randint(-15,15)
+        pop.append(People(inst,infect,np.array([x,y]),vaci,np.array([0,0]),False, schedule , imune,["Mon",8,1],0,incub_period,death_period,recov_period,infectivity))
 
     return pop
 
@@ -114,7 +119,6 @@ def Generate_University(Institute_list,fig,ax) -> None:
   for i in Institute_list:
     r = np.sqrt(i.area/np.pi)
     area = plt.Circle(i.location,r,fc = "lightblue", zorder = 0)
-    ax.scatter(i.location[0],i.location[1], color = "blue",zorder = 10)
     ax.add_patch(area)
 
 def random_walk (V) -> np.ndarray:
@@ -135,13 +139,14 @@ def detect_collision (p1, p2,R) -> bool:
     return True
 
 def solve_collision(p1,p2) -> None:
-    sig = 2/3
+    sig = 1.9/3
     d = (p1.Position[0]-p2.Position[0])**2 + (p1.Position[1]-p2.Position[1])**2
-    prob = abs(-np.exp(-(1/2) * d/sig) + np.random.uniform(-1,1))
+    prob = abs(-np.exp(-(1/2) * d/sig) - np.random.uniform(0,1))
     if prob <= p1.Infectivity:
         p2.Infectivity = np.random.gamma(0.65, 0.2)
         while p2.Infectivity > 1:
               p2.Infectivity = np.random.gamma(0.65, 0.2)
+        print("Um "+ str(p1.Infect) + " expos um " + str(p2.Infect))
         p2.Att_State(1)
 
 
@@ -152,37 +157,37 @@ def Sweep_n_prune(People,R) -> None:
   #Sort people by the x-axis
   People = sorted(People, key=lambda People: People.Position[0])
   active = []
-  collision_set = {}
+  collision_set = set()
   for i in People:
-
-    if len(active)>1:
-      #If there is at least one person in the active list and the interval of all the list coincides
-      if abs(active[0].Position[0] - i.Position[0]) <= R:
-        active.append(i)
-      # If the new person does not bellong to the currente interval we check all the collisions in the active list
-      else:
-        for j in active:
-          for k in active:
-            if (j.Infect >= 1 or i.Infect >=1) and not (j.infect >= 1 and i.infect >=1 )and detect_collision(j, k, R):
-                if j.infect>=1:
-                    collision_set.add((k,j))
-                else:
-                    collision_set.add((j,k))
-
-        # We then remove the first item of the active list, since all of his possible collsions have been checked
-        active.remove(active[0])
-
-        # We now start to remove all the itens of the active list, until the new item is in the interval of someone inside the active list or the active list is empty
-        for j in active:
-          if abs(j.Position[0] - i.Position[0]) <= R or len(active) == 0:
+    if i.Quaren == False:
+        if len(active)>1:
+          #If there is at least one person in the active list and the interval of all the list coincides
+          if abs(active[0].Position[0] - i.Position[0]) <= R:
             active.append(i)
-            break
-
+          # If the new person does not bellong to the currente interval we check all the collisions in the active list
           else:
-            active.remove(j)
-    else:
-        active.append(i)
+            for j in active:
+              for k in active:
+                if (j.Infect >= 1 or k.Infect >=1) and not (j.Infect >= 1 and k.Infect >=1 ) and not(j.Infect <0 or k.Infect <0 ) and detect_collision(j, k, R):
+                    if j.Infect>=1:
+                        collision_set.add((j,k))
+                    else:
+                        collision_set.add((k,j))
+
+            # We then remove the first item of the active list, since all of his possible collsions have been checked
+            active.remove(active[0])
+
+            # We now start to remove all the itens of the active list, until the new item is in the interval of someone inside the active list or the active list is empty
+            for j in active:
+              if abs(j.Position[0] - i.Position[0]) <= R or len(active) == 0:
+                active.append(i)
+                break
+
+              else:
+                active.remove(j)
+        else:
+            active.append(i)
 
   # We can now solve all the collisions
   for i in collision_set:
-    solve_colission (i[0],i[1])
+    solve_collision(i[0],i[1])

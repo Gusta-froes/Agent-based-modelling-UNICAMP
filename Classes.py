@@ -10,8 +10,9 @@ class Institute:
     self.area = area
 
 class People:
+  global asym
   asym = 0.3
-  global dt
+  global dt, p_test_symp, p_test_asymp
   dt = 0.1
   p_test_symp = 0.7
   p_test_asymp = 0.1
@@ -29,13 +30,15 @@ class People:
     self.Goal = Schedule[Time[0]][Time[1]]
     self.Age = Age
     self.Prob_Die = 0.0000457*np.exp(0.08952*self.Age)
-    self.color =  {0:"Green",2:"Red",3:"Blue"}[Infect]
+    self.color =  {0:"Green",2:"Red",3:"Blue"}[self.Infect]
     self.Death_period = Death_period
     self.Incub_period = Incub_period
     self.Recov_period = Recov_period
     self.Infectivity = Infectivity
     self.Is_Going_2_Die = False
     self.timer = ["Mon",8,0]
+    self.Going_2_Quaren = False
+
 
 
 
@@ -56,20 +59,21 @@ class People:
       if len(args) > 0:
         self.timer = self.Time
         self.Infect = args[0]
-        self.color =  {0:"Green",2:"Red",3:"Blue",1:"Green", -1:"Gray", -2:"Black"}[self.Infect]
+        self.color =  {0:"Green",2:"Red",3:"Blue",1:"purple", -1:"Gray", -2:"Black"}[self.Infect]
       else:
-        if (self.Time[2] - self.timer[2]) >= self.Death_period and self.Is_Going_2_Die == True:
+        if ((self.Time[2] - self.timer[2]) >= self.Death_period) and (self.Is_Going_2_Die == True):
           self.Infect = -2
           self.color =  "Black"
 
         elif (self.Time[2] - self.timer[2]) >= self.Incub_period and self.Infect == 1:
 
-          if np.random.uniform(0,1) <= self.Porb_Die:
+          if np.random.uniform(0,1) <= self.Prob_Die:
             self.Is_Going_2_Die = True
 
           if np.random.uniform(0,1) <= asym:
             self.Infect = 3
             self.color =  "Blue"
+
 
           else:
             self.Infect = 2
@@ -85,17 +89,22 @@ class People:
           self.color = "Grey"
           self.Is_Going_2_Die = False
 
-      if self.Quarentine == True and self.Infected < 0:
-        self.Quaretine = False
-      elif self.Quarentine == False and np.random.uniform(0,1) <= 0.98:
+      if self.Quaren == True and self.Infect < 0:
+        self.Quaren = False
+      elif self.Quaren == False and np.random.uniform(0,1) <= 0.98:
         if self.Infect == 2 and np.random.uniform(0,1) <= p_test_symp:
-          self.Quarentine = True
+          self.Going_2_Quaren = True
         elif self.Infect == 3 and np.random.uniform(0,1) <= p_test_asymp:
-          self.Quarentine = True
+          self.Going_2_Quaren = True
 
   def Att_Quarentine(self):
-    if self.Infect <= 1:
-      self.Quarentine = False
+    if self.Infect == -1:
+      self.Quaren = False
+      self.Going_2_Quaren == False
+      x = np.random.randint(-15,15)
+      y = np.random.randint(-15,15)
+      self.Position = np.array([x,y])
 
-    elif self.Quarentine == True:
-      self.Set_P0(np.array([100,100]))            # Still need to think where quarentine will ocour.
+    elif self.Going_2_Quaren == True:
+      self.Quaren =True
+      self.Position = np.array([100,100])           # Still need to think where quarentine will ocour.
