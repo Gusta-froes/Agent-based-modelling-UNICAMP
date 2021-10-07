@@ -33,7 +33,7 @@ num_class = {'IFGW': 12, 'IMECC': 12, 'IC': 12}
 
 class_offered = create_classes(num_class, unicamp_dict)
 
-people = Create_Population(100, class_offered ,inst_distrib,10/100,10/100,10/100,10/100)
+people = Create_Population(10, class_offered ,inst_distrib,10/100,10/100,10/100,10/100)
 
 
 
@@ -125,5 +125,5 @@ def animate (p,frames):
 #ax.set_ylim(30)
 
 anim = animation.FuncAnimation(fig, animate, interval = 100, fargs = [frames], save_count = frames )
-
-anim.save("Simu.mp4")
+plt.show()
+#anim.save("Simu.mp4")

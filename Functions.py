@@ -3,34 +3,100 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 import matplotlib.animation as animation
-def create_classes(num_class, unicamp_dict):
-  classes = {}
+def create_classes(num_professor, unicamp_dict):  # num_professor é um dicionário para a quantidade de professores para cada instituto
+  #Esta função vai gerar a quantidade de professores desejada e vai preencher a agenda deles com duas aulas (4 horas na semana, cada) especificando lugar, hora e dia
+  # É preciso fazer uma ginastica, registrando os horários já ocupados para que duas aulas não ocupem o mesmo ponto no espaço-tempo
+  professors = {}
+  for inst in num_professor:
+    professors[inst] = []
+    for j in num_professor[inst]:
+      professors.append(Professor(inst, 0, np.array([0,0]), False, np.array([0,0]), False, False, np.array([0,0]), ["Mon",7], 40, 1,1,1,1))
+  for inst in professors:
+    for Tessler in professors[inst]:
+      for n in range(2):  #Num de aulas que um professor ministra
+        possible_places = list(unicamp_dict['Classroom'].keys())+[inst]
+        for k in possible_places:
+          if k in unicamp_dict['Classroom']:
+            if list(unicamp_dict['Classroom'][k].free_date.keys()) == 0:
+              possible_places.remove(k)
+          else:
+            if list(unicamp_dict['Institute'][k].free_date.keys()) == 0:
+              possible_places.remove(k)
+        if len(possible_places) != 0:
+          place = np.random.choice(possible_places)
+          if place in unicamp_dict['Classroom']:
+            aux = 0
+          else:
+            aux = 1
+          specie = ['Classroom', 'Institute'] #Apenas para facilitar o tipo de sala que estamos acessando, que será especificado pela variável "aux"
+          day = np.random.choice(list(unicamp_dict[specie[aux]][place].free_date.keys()))
+          hour = np.random.choice(unicamp_dict[specie[aux]][place].free_date[day])
+          unicamp_dict[specie[aux]][place].free_date[day].remove(hour)
+          if len(unicamp_dict[specie[aux]][place].free_date[day]) == 0:
+            del unicamp_dict[specie[aux]][place].free_date[day]
+          Tessler.Add_class(day, hour, place)
+      Tessler.Fill_schedule()
 
-  for i in num_class:
-    classes[i] = []
-    for j in range(num_class[i]):
-     # day = -1
-     # hour = -1
-      aux = 0
-      options = list(unicamp_dict['classroom'].keys()) + [i]
-      while aux == 0 and len(options) != 0:
-        place = np.random.choice(options)
-        if place in unicamp_dict['classroom']:
-          type_place = 'classroom'
-        else:
-          type_place = 'institute'
-        if len(list(unicamp_dict[type_place][place].free_date.keys())) != 0:
-          aux = 1
-          day = np.random.choice(list(unicamp_dict[type_place][place].free_date.keys()))
-          hour = np.random.choice(unicamp_dict[type_place][place].free_date[day])
-          unicamp_dict[type_place][place].free_date[day].remove(hour)
-          if len(unicamp_dict[type_place][place].free_date[day]) == 0:
-            del unicamp_dict[type_place][place].free_date[day]
-          classes[i].append([day, hour, place])
-        else:
-          options.remove(place)
+  return professors
 
-  return classes
+
+def Generate_Schedule(inst, professor):
+# Create a schedule based on the institute that you specified
+# Note that the inst_list needs to have the institutes listed in the same order as the institutes in the p_list
+
+  inst_list = ["IFGW","IC", "IMECC"]
+  if inst == "IFGW":                                        # These are the probabilities of somoene who is in IFGW taking a class in each istitute
+    p_IFGW = 0.7                                            # For now, these are done manualy. We may need to find another way of doing it
+    p_IC = 0.1
+    p_IMECC = 0.2
+
+  if inst == "IMECC":
+    p_IFGW = 0.05
+    p_IC = 0.25
+    p_IMECC = 0.7
+
+  if inst == "IC":
+    p_IFGW = 0
+    p_IC = 0.8
+    p_IMECC = 0.2
+
+  p_list =  [p_IFGW,p_IC,p_IMECC]
+  d = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
+  t = [7,8,9,10,11,14,15,16,17,19,20,21,22,23]
+  Schedule = {}
+  for i in d:
+    Schedule[i] = {}                      # Times in wich you may have classes
+    for j in t:
+      Schedule[i][j] = ''
+    if random.randint(1,2) == 1:
+      Schedule[i][12] = 'Bandeco'
+      Schedule[i][13] = ''
+    else:
+      Schedule[i][13] = 'Bandeco'
+      Schedule[i][12] = ''
+    Schedule[i][18] = 'Bandeco'
+  for j in range(12):                                             # In the future I might change this to take in consideration the distribution of classes in a certain time, in order to be more realistic
+    inst_class= np.random.choice(inst_list,p =p_list)
+    possible_professor = professor[inst_class]
+    Tessler = np.random.choice(possible_professor)
+    while not Tessler.working:
+      possible_professor.remove(Tessler)
+      Tessler = np.random.choice(possible_professor)
+    n = np.randint(1,len(Tessler.classes))
+    day, hour, place = Tessler.classes[n]
+    Schedule[day][hour] = place
+    Schedule[day][hour + 1] = place
+    if day == 'Mon':
+      Schedule['Wed'][hour] = place
+      Schedule['Wed'][hour + 1] = place
+    elif day == 'Thu':
+      Schedule['Tue'][hour] = place
+      Schedule['Tue'][hour + 1] = place
+    else:
+      Schedule[day][hour + 2] = place
+      Schedule[day][hour + 3] = place
+  return Schedule
+
 
 
 def Create_Population(n, class_offered, inst_distrib, vaci_prob, infect_prob, symp_prob, imune_prob):
@@ -127,27 +193,10 @@ def Create_Population(n, class_offered, inst_distrib, vaci_prob, infect_prob, sy
 
         x = np.random.randint(-15,15)
         y = np.random.randint(-15,15)
-        student = Student(inst,infect,np.array([x,y]),vaci,np.array([0,0]),False,  imune,np.array([0,0]),["Mon",7,1],20,incub_period,death_period,recov_period,infectivity)
-        student_classes = student.schedule(inst, class_offered)
+        schedule = Generate_Schedule(inst, professor)
+        student = Student(inst,infect,np.array([x,y]),vaci,np.array([0,0]),False,  imune,np.array([0,0]),["Mon",7,1],20,incub_period,death_period,recov_period,infectivity, schedule)
         pop.append(student)
 
-        for s in student_classes:
-          aux = 0
-          day = s[0]
-          hour = s[1]
-          place = s[2]
-          inst_class = s[3]
-          for b in professor:
-            if b.Schedule[day][hour] == '' and b.cont <=4 and b.Inst == inst_class and aux == 0:
-              b.Add_class(day, hour, place)
-              aux = 1
-          if aux == 0:
-            Tessler = Professor(inst_class, 0, np.array([0,0]), False, np.array([0,0]), False, False, np.array([0,0]), ["Mon",7], 40, 1,1,1,1)
-            Tessler.Add_class(day, hour, place)
-            professor.append(Tessler)
-            pop.append(Tessler)
-        for s in professor:
-          s.Fill_schedule()
     return pop
 
 def Generate_University(Institute_list,fig,ax) -> None:
@@ -181,7 +230,7 @@ def solve_collision(p1,p2) -> None:
         p2.Infectivity = np.random.gamma(0.65, 0.2)
         while p2.Infectivity > 1:
               p2.Infectivity = np.random.gamma(0.65, 0.2)
-        print("Um "+ str(p1.Infect) + " expos um " + str(p2.Infect))
+        #print("Um "+ str(p1.Infect) + " expos um " + str(p2.Infect))
         p2.Att_State(1)
 
 
