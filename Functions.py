@@ -75,20 +75,20 @@ def Generate_Schedule(inst, professor):
       Schedule[i][13] = 'Bandeco'
       Schedule[i][12] = ''
     Schedule[i][18] = 'Bandeco'
-  for j in range(12):                                             # In the future I might change this to take in consideration the distribution of classes in a certain time, in order to be more realistic
+  for j in range(6):                                             # In the future I might change this to take in consideration the distribution of classes in a certain time, in order to be more realistic
     inst_class= np.random.choice(inst_list,p =p_list)
     possible_professor = professor[inst_class]
     Tessler = np.random.choice(possible_professor)
-    while not Tessler.working:
-      possible_professor.remove(Tessler)
+    while not Tessler.working:                     # Não podemos escolher um professor que não está dando aula
+      possible_professor.remove(Tessler)           # Pode acontecer de termos professores que dão aula, mas não tem aluno
       Tessler = np.random.choice(possible_professor)
-    n = np.randint(1,len(Tessler.classes))
+    n = random.randint(1,len(Tessler.classes))            # Sorteio o professor e depois sorteio a aula, dentre as ministradas pelo professor
     day, hour, place = Tessler.classes[n]
     Schedule[day][hour] = place
-    Schedule[day][hour + 1] = place
+    Schedule[day][hour + 1] = place         # Se o sorteio cair dias vezes no mesmo lugar, o aluno fica com aula a menos
     if day == 'Mon':
       Schedule['Wed'][hour] = place
-      Schedule['Wed'][hour + 1] = place
+      Schedule['Wed'][hour + 1] = place     # Apenas aumenta a semelhança com os horários da Unicamp
     elif day == 'Thu':
       Schedule['Tue'][hour] = place
       Schedule['Tue'][hour + 1] = place
