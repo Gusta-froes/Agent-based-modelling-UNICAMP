@@ -14,14 +14,16 @@ class Institute(University):
       super().__init__(location, area)
       self.name = name
       self.color = color
-      self.free_date = {"Mon":[8,10,14,16,19,21], "Tue":[8,10,14,16,19,21], "Wed":[8,10,14,16,19,21],"Thu":[8,10,14,16,19,21],"Fri":[8,10,14,16,19,21]}
+      self.free_date = {"Mon":[8,10,14,16,19,21]}
+      #, "Tue":[8,10,14,16,19,21],"Fri":[8,14,19]}
 
 class Classroom(University):
   def __init__(self, location, area, name, color):
       super().__init__(location, area)
       self.name = name
       self.color = color
-      self.free_date = {"Mon":[8,10,14,16,19,21], "Tue":[8,10,14,16,19,21], "Wed":[8,10,14,16,19,21],"Thu":[8,10,14,16,19,21],"Fri":[8,10,14,16,19,21]}
+      self.free_date = {"Mon":[8,10,14,16,19,21]}
+      #, "Tue":[8,10,14,16,19,21],"Fri":[8,14,19]}
 
 class Restaurant(University):
   def __init__(self, location, area, name, color):
@@ -134,56 +136,11 @@ class People:
 
 
 class Student(People):
-  def __init__(self, Inst, Infect, Position, Vaci, Velocity, Quaren, Imune, V0, Time, Age, Incub_period, Death_period, Recov_period, Infectivity):
+  def __init__(self, Inst, Infect, Position, Vaci, Velocity, Quaren, Imune, V0, Time, Age, Incub_period, Death_period, Recov_period, Infectivity, Schedule):
       super().__init__(Inst, Infect, Position, Vaci, Velocity, Quaren, Imune, V0, Time, Age, Incub_period, Death_period, Recov_period, Infectivity)
-      self.Schedule = {}
+      self.Schedule = Schedule
 
-  def schedule(self, inst, initial_class_offered):
-  # Create a schedule based on the institute that you specified
-  # Note that the inst_list needs to have the institutes listed in the same order as the institutes in the p_list
-    class_offered = initial_class_offered
 
-    inst_list = ["IFGW","IC", "IMECC"]
-    if inst == "IFGW":                                        # These are the probabilities of somoene who is in IFGW taking a class in each istitute
-      p_IFGW = 0.7                                            # For now, these are done manualy. We may need to find another way of doing it
-      p_IC = 0.1
-      p_IMECC = 0.2
-
-    if inst == "IMECC":
-      p_IFGW = 0.05
-      p_IC = 0.25
-      p_IMECC = 0.7
-
-    if inst == "IC":
-      p_IFGW = 0
-      p_IC = 0.8
-      p_IMECC = 0.2
-
-    p_list =  [p_IFGW,p_IC,p_IMECC]
-    d = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
-    t = [7,8,9,10,11,14,15,16,17,19,20,21,22,23]
-    for i in d:
-      self.Schedule[i] = {}                      # Times in wich you may have classes
-      for j in t:
-        self.Schedule[i][j] = ''
-      if random.randint(1,2) == 1:
-        self.Schedule[i][12] = 'Bandeco'
-        self.Schedule[i][13] = ''
-      else:
-        self.Schedule[i][13] = 'Bandeco'
-        self.Schedule[i][12] = ''
-      self.Schedule[i][18] = 'Bandeco'
-    student_classes = []
-    for j in range(12):                                             # In the future I might change this to take in consideration the distribution of classes in a certain time, in order to be more realistic
-      inst_class= np.random.choice(inst_list,p =p_list)
-      if len(class_offered[inst_class]) != 0:
-        a = random.randint(0, len(class_offered[inst_class]) - 1)
-        day, hour, place = class_offered[inst_class][a]
-        class_offered[inst_class].pop(a)
-        self.Schedule[day][hour] = place
-        self.Schedule[day][hour + 1] = place
-        student_classes.append([day, hour, place, inst_class])
-    return student_classes
 
 class Professor(People):
   def __init__(self, Inst, Infect, Position, Vaci, Velocity, Quaren, Imune, V0, Time, Age, Incub_period, Death_period, Recov_period, Infectivity):
@@ -192,7 +149,7 @@ class Professor(People):
       d = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
       t = [7,8,9,10,11,14,15,16,17,19,20,21,22,23]
       for i in d:
-        self.Schedule[i] = {}                      # Times in wich you may have classes
+        self.Schedule[i] = {}                     
         for j in t:
           self.Schedule[i][j] = ''
         if random.randint(1,2) == 1:
@@ -202,12 +159,23 @@ class Professor(People):
           self.Schedule[i][13] = 'Bandeco'
           self.Schedule[i][12] = ''
         self.Schedule[i][18] = 'Bandeco'
-      self.cont = 0
+      self.working = False
+      self.classes = []
 
   def Add_class(self, day, hour, place):
-    self.cont = self.cont + 1
     self.Schedule[day][hour] = place
     self.Schedule[day][hour + 1] = place
+    if day == 'Mon':
+      self.Schedule['Wed'][hour] = place
+      self.Schedule['Wed'][hour + 1] = place
+    elif day == 'Tue':
+      self.Schedule['Thu'][hour] = place
+      self.Schedule['Thu'][hour + 1] = place
+    else:
+      self.Schedule[day][hour + 2] = place
+      self.Schedule[day][hour + 3] = place
+    self.classes.append([day, hour, place])
+    self.working = True      #Serve para não escolhermos um professor que não dê aulas para algum aluno
   def Fill_schedule(self):
     for i in list(self.Schedule.keys()):
       for j in list(self.Schedule[i].keys()):

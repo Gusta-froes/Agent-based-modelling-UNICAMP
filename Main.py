@@ -29,11 +29,11 @@ CB03 = Classroom(np.array([-10,10]), 50, 'CB03', 'gray')
 Bandeco = Restaurant(np.array([-45,45]), 300, 'Bandeco', 'pink')
 Unicamp = University(np.array([0,0]), 1000)
 unicamp_dict = {'institute':{"IFGW":IFGW,"IC":IC, "IMECC": IMECC}, 'classroom':{'CB01': CB01, 'CB02': CB02, 'CB03':CB03}}
-num_class = {'IFGW': 12, 'IMECC': 12, 'IC': 12}
+num_professor = {'IFGW': 1, 'IMECC': 1, 'IC': 1}
 
-class_offered = create_classes(num_class, unicamp_dict)
+class_offered = create_classes(num_professor, unicamp_dict)
 
-people = Create_Population(10, class_offered ,inst_distrib,10/100,10/100,10/100,10/100)
+people = Create_Population(1, class_offered ,inst_distrib,10/100,10/100,10/100,10/100)
 
 
 

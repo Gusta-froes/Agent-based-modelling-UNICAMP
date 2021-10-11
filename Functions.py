@@ -9,26 +9,26 @@ def create_classes(num_professor, unicamp_dict):  # num_professor é um dicioná
   professors = {}
   for inst in num_professor:
     professors[inst] = []
-    for j in num_professor[inst]:
-      professors.append(Professor(inst, 0, np.array([0,0]), False, np.array([0,0]), False, False, np.array([0,0]), ["Mon",7], 40, 1,1,1,1))
+    for j in range(num_professor[inst]):
+      professors[inst].append(Professor(inst, 0, np.array([0,0]), False, np.array([0,0]), False, False, np.array([0,0]), ["Mon",7], 40, 1,1,1,1))
   for inst in professors:
     for Tessler in professors[inst]:
       for n in range(2):  #Num de aulas que um professor ministra
-        possible_places = list(unicamp_dict['Classroom'].keys())+[inst]
+        possible_places = list(unicamp_dict['classroom'].keys())+[inst]
         for k in possible_places:
-          if k in unicamp_dict['Classroom']:
-            if list(unicamp_dict['Classroom'][k].free_date.keys()) == 0:
+          if k in unicamp_dict['classroom']:
+            if list(unicamp_dict['classroom'][k].free_date.keys()) == 0:
               possible_places.remove(k)
           else:
-            if list(unicamp_dict['Institute'][k].free_date.keys()) == 0:
+            if list(unicamp_dict['institute'][k].free_date.keys()) == 0:
               possible_places.remove(k)
         if len(possible_places) != 0:
           place = np.random.choice(possible_places)
-          if place in unicamp_dict['Classroom']:
+          if place in unicamp_dict['classroom']:
             aux = 0
           else:
             aux = 1
-          specie = ['Classroom', 'Institute'] #Apenas para facilitar o tipo de sala que estamos acessando, que será especificado pela variável "aux"
+          specie = ['classroom', 'institute'] #Apenas para facilitar o tipo de sala que estamos acessando, que será especificado pela variável "aux"
           day = np.random.choice(list(unicamp_dict[specie[aux]][place].free_date.keys()))
           hour = np.random.choice(unicamp_dict[specie[aux]][place].free_date[day])
           unicamp_dict[specie[aux]][place].free_date[day].remove(hour)
@@ -75,14 +75,14 @@ def Generate_Schedule(inst, professor):
       Schedule[i][13] = 'Bandeco'
       Schedule[i][12] = ''
     Schedule[i][18] = 'Bandeco'
-  for j in range(6):                                             # In the future I might change this to take in consideration the distribution of classes in a certain time, in order to be more realistic
+  for j in range(2):                                             # In the future I might change this to take in consideration the distribution of classes in a certain time, in order to be more realistic
     inst_class= np.random.choice(inst_list,p =p_list)
     possible_professor = professor[inst_class]
     Tessler = np.random.choice(possible_professor)
     while not Tessler.working:                     # Não podemos escolher um professor que não está dando aula
       possible_professor.remove(Tessler)           # Pode acontecer de termos professores que dão aula, mas não tem aluno
       Tessler = np.random.choice(possible_professor)
-    n = random.randint(1,len(Tessler.classes))            # Sorteio o professor e depois sorteio a aula, dentre as ministradas pelo professor
+    n = random.randint(0,len(Tessler.classes)-1)            # Sorteio o professor e depois sorteio a aula, dentre as ministradas pelo professor
     day, hour, place = Tessler.classes[n]
     Schedule[day][hour] = place
     Schedule[day][hour + 1] = place         # Se o sorteio cair dias vezes no mesmo lugar, o aluno fica com aula a menos
@@ -99,7 +99,7 @@ def Generate_Schedule(inst, professor):
 
 
 
-def Create_Population(n, class_offered, inst_distrib, vaci_prob, infect_prob, symp_prob, imune_prob):
+def Create_Population(n, professor, inst_distrib, vaci_prob, infect_prob, symp_prob, imune_prob):
   # Creates a population for the University
   # n is the number of people you want to create
   # inst_distrib is the percentage of people in each institute: Needs to be a dictionary e.g.: {"IC": 0.25, "IFGW": 0.25, "IMECC": 0.5}
@@ -110,7 +110,7 @@ def Create_Population(n, class_offered, inst_distrib, vaci_prob, infect_prob, sy
 
 
   pop = []
-  professor = []
+  #professor = []
   inst_list = list(inst_distrib.keys())
   inst_p = []
   buff = 0
@@ -141,7 +141,7 @@ def Create_Population(n, class_offered, inst_distrib, vaci_prob, infect_prob, sy
     pop = []
     inst_list = list(inst_distrib.keys())
     inst_p = []
-    n_inst = len(inst_list)
+    #n_inst = len(inst_list)
     buff = 0
     vac_efi = 0
 
@@ -196,6 +196,9 @@ def Create_Population(n, class_offered, inst_distrib, vaci_prob, infect_prob, sy
         schedule = Generate_Schedule(inst, professor)
         student = Student(inst,infect,np.array([x,y]),vaci,np.array([0,0]),False,  imune,np.array([0,0]),["Mon",7,1],20,incub_period,death_period,recov_period,infectivity, schedule)
         pop.append(student)
+
+        for inst in professor:
+          pop = pop + professor[inst]
 
     return pop
 
